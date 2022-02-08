@@ -56,7 +56,6 @@ Werkzeug==2.0.2
 wrapt==1.13.3
 Flask==2.0.2
 gunicorn==20.0.4
-requests==2.26.0
 itsdangerous==2.0
 Jinja2==3.0
 MarkupSafe==2.0.0rc2
