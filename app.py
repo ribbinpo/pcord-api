@@ -9,7 +9,6 @@ import joblib
 import datetime
 import json
 # from fastapi.middleware.cors import CORSMiddleware
-#sl
 from flask import Flask,request,abort
 app = Flask(__name__)
 # app = FastAPI()
@@ -85,7 +84,7 @@ loadConfig()
 # df = pd.read_json(data.text)
 
 # @app.get('/raw/')
-@app.route('/raw/')
+# @app.route('/raw/')
 async def get_raw():
     # date = datetime.datetime.strptime(df["txn_date"][0].values , '%Y-%m-%d').date()
     date= df["txn_date"].values
@@ -98,19 +97,23 @@ async def get_raw():
         data_.append(int(data[i]))
     # print(data)
     res = {"date":date_,"data":data_}
-    return {"result":res}
+    return res
 
 # @app.get('/predict/')
 @app.route('/predict/')
 async def get_predict():
     df_pre = await preprocess_data(df["new_case"].values)
-    y = await predict(df_pre,14)
+    y = await predict(df_pre,7)
     index ,date, data = y
-    print(index)
-    print(date)
-    print(data)
-    res = {"index":index,"date":date,"data":data}
-    return {"result":res}
+    # print(index)
+    # print(date)
+    # print(data)
+    pred = {"index":index,"date":date,"data":data}
+    
+    raw = await get_raw()
+
+    return {"raw":raw,"predict":pred}
 
 if __name__ == "__main__":
     app.run(debug=False)
+    # app.run(host='0.0.0.0',port=8080)
