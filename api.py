@@ -2,14 +2,29 @@ from asyncio.windows_events import NULL
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 import numpy as np
-from fastapi import FastAPI
+# from fastapi import FastAPI
 # from pydantic import BaseModel
 import pandas as pd
 import joblib
 import datetime
 import json
+# from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI()
+from flask import Flask,request,abort
+app = Flask(__name__)
+# app = FastAPI()
+# origins = [
+#     # "http://localhost:3000",
+#     # "http://localhost:8000",
+#     "*"
+# ]
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=origins,
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 #Load Model, 
 def loadConfig():
@@ -69,7 +84,8 @@ loadConfig()
 # data = requests.get("https://covid19.ddc.moph.go.th/api/Cases/timeline-cases-by-provinces")
 # df = pd.read_json(data.text)
 
-@app.get('/raw/')
+# @app.get('/raw/')
+@app.route('/raw/')
 async def get_raw():
     # date = datetime.datetime.strptime(df["txn_date"][0].values , '%Y-%m-%d').date()
     date= df["txn_date"].values
@@ -84,7 +100,8 @@ async def get_raw():
     res = {"date":date_,"data":data_}
     return {"result":res}
 
-@app.get('/predict/')
+# @app.get('/predict/')
+@app.route('/predict/')
 async def get_predict():
     df_pre = await preprocess_data(df["new_case"].values)
     y = await predict(df_pre,14)
@@ -94,3 +111,6 @@ async def get_predict():
     print(data)
     res = {"index":index,"date":date,"data":data}
     return {"result":res}
+
+if __name__ == "__main__":
+    app.run(debug=False)
