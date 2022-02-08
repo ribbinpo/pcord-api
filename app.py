@@ -108,12 +108,21 @@ async def get_predict():
     # print(index)
     # print(date)
     # print(data)
+    
+
+    
     pred = {"index":index,"date":date,"data":data}
     
     raw = await get_raw()
+    
+    return {
+        "totalCase": 1,
+        "todayCase": 2,
+        "PredictTommorrow": 3,
+        "allData":{"raw":raw,"predict":pred}}
 
-    return {"raw":raw,"predict":pred}
+    # return {"raw":raw,"predict":pred}
 
 if __name__ == "__main__":
-    app.run(debug=False)
-    # app.run(host='0.0.0.0',port=8080)
+    # app.run(debug=False)
+    app.run(host='0.0.0.0',port=8080)
