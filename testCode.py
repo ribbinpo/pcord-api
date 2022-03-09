@@ -6,7 +6,9 @@ with open('json_data.json') as json_file:
     data = json.loads(data)
     result = -1
     count = 7
-    checkDate = "2022-03-16"
+    message = ">pred 2022-03-16"
+    text = message.split()[0]
+    checkDate = message.split()[1]
     for i in range(len(data["allData"]["predict"]))[::-1]:
         if count == 0:
             break
