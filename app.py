@@ -10,7 +10,9 @@ import datetime
 import json
 # from fastapi.middleware.cors import CORSMiddleware
 from flask import Flask,request,abort
+
 app = Flask(__name__)
+
 # app = FastAPI()
 # origins = [
 #     # "http://localhost:3000",
@@ -71,11 +73,11 @@ async def predict(data, next):
         out = model.predict(x)[0][0]
         prediction_list = np.append(prediction_list, out)
         dates.append(date + datetime.timedelta(days=i+1))
-        index.append(i)
     prediction_list = prediction_list[shift_data-1:]
     prediction_list =scaler.inverse_transform(np.array(prediction_list).reshape(-1,1)).reshape(-1).tolist()
-    print(prediction_list)
-    return index,dates,prediction_list
+    for i in range(len(prediction_list)):
+        prediction_list[i] = int(prediction_list[i])
+    return dates,prediction_list
 
 
 loadConfig()
@@ -90,13 +92,18 @@ async def get_raw():
     date= df["txn_date"].values
     # print(date)
     data = df["new_case"].values
-    date_ = []
-    data_ = []
+    # date_ = []
+    # data_ = []
+    # for i in range(len(date)):
+    #     date_.append(str(date[i]))
+    #     data_.append(int(data[i]))
+    # res = {"date":date_,"data":data_}
+    res = []
     for i in range(len(date)):
-        date_.append(str(date[i]))
-        data_.append(int(data[i]))
-    # print(data)
-    res = {"date":date_,"data":data_}
+        case = {}
+        case["date"] = date[i]
+        case["case"] = int(data[i])
+        res.append(case)
     return res
 
 # @app.get('/predict/')
@@ -104,23 +111,23 @@ async def get_raw():
 async def get_predict():
     df_pre = await preprocess_data(df["new_case"].values)
     y = await predict(df_pre,7)
-    index ,date, data = y
-    # print(index)
-    # print(date)
-    # print(data)
+    date, data = y
     
+    pred = []
+    for i in range(len(date)):
+        case = {}
+        case["date"] = datetime.datetime.strptime(str(date[i]),'%Y-%m-%d').date()
+        case["case"] = int(data[i])
+        pred.append(case)
+    # pred = {"date":date,"data":data}
 
-    
-    pred = {"index":index,"date":date,"data":data}
-    
+
     raw = await get_raw()
-    
     return {
-        "totalCase": 1,
-        "todayCase": 2,
-        "PredictTommorrow": 3,
+        "totalCase": 23041,
+        "todayCase": int(df["new_case"].values[-1]),
+        "PredictTommorrow": data[-1],
         "allData":{"raw":raw,"predict":pred}}
-
     # return {"raw":raw,"predict":pred}
 
 if __name__ == "__main__":
